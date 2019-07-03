@@ -57,7 +57,7 @@ type MainWindow struct {
 }
 
 func (mw MainWindow) Create() error {
-	w, err := walk.NewMainWindow()
+	w, err := walk.NewMainWindow(walk.Size{Width:mw.Size.Width, Height:mw.Size.Height})
 	if err != nil {
 		return err
 	}

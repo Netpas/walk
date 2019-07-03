@@ -307,6 +307,7 @@ type WindowBase struct {
 	sizeChangedPublisher    EventPublisher
 	maxSize                 Size
 	minSize                 Size
+	size                    Size
 	background              Brush
 	cursor                  Cursor
 	suspended               bool
@@ -394,6 +395,7 @@ func InitWindow(window, parent Window, className string, style, exStyle uint32) 
 	wb.window = window
 	wb.enabled = true
 	wb.visible = true
+	var winPos Rectangle
 
 	wb.name2Property = make(map[string]Property)
 
@@ -412,6 +414,17 @@ func InitWindow(window, parent Window, className string, style, exStyle uint32) 
 	if len(wb.name) != 0 {
 		windowName = syscall.StringToUTF16Ptr(wb.name)
 	}
+	if wb.size.Width != 0 || wb.size.Height != 0 {
+		winPos.Width = wb.size.Width
+		winPos.Height = wb.size.Height
+		winPos.X = (int(XScreen) - winPos.Width)/2
+		winPos.Y = (int(YScreen) - winPos.Height)/2
+	} else {
+		winPos.Height = win.CW_USEDEFAULT
+		winPos.Width = win.CW_USEDEFAULT
+		winPos.Y = win.CW_USEDEFAULT
+		winPos.X = win.CW_USEDEFAULT
+	}
 
 	if hwnd := window.Handle(); hwnd == 0 {
 		wb.hWnd = win.CreateWindowEx(
@@ -419,10 +432,10 @@ func InitWindow(window, parent Window, className string, style, exStyle uint32) 
 			syscall.StringToUTF16Ptr(className),
 			windowName,
 			style|win.WS_CLIPSIBLINGS,
-			win.CW_USEDEFAULT,
-			win.CW_USEDEFAULT,
-			win.CW_USEDEFAULT,
-			win.CW_USEDEFAULT,
+			int32(winPos.X),
+			int32(winPos.Y),
+			int32(winPos.Width),
+			int32(winPos.Height),
 			hwndParent,
 			0,
 			0,
@@ -624,6 +637,9 @@ func (wb *WindowBase) SetName(name string) {
 	wb.name = name
 }
 
+func (wb *WindowBase) InitSetSize(size Size) {
+	wb.size = size
+}
 func (wb *WindowBase) writePath(buf *bytes.Buffer) {
 	hWndParent := win.GetAncestor(wb.hWnd, win.GA_PARENT)
 	if pwi := windowFromHandle(hWndParent); pwi != nil {

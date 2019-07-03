@@ -16,8 +16,15 @@ import (
 
 const mainWindowWindowClass = `\o/ Walk_MainWindow_Class \o/`
 
+var (
+	XScreen int32
+	YScreen int32
+)
+
 func init() {
 	MustRegisterWindowClass(mainWindowWindowClass)
+	XScreen = win.GetSystemMetrics(win.SM_CXSCREEN)
+	YScreen = win.GetSystemMetrics(win.SM_CYSCREEN)
 }
 
 type MainWindow struct {
@@ -28,13 +35,14 @@ type MainWindow struct {
 	statusBar       *StatusBar
 }
 
-func NewMainWindow() (*MainWindow, error) {
-	return NewMainWindowWithName("")
+func NewMainWindow(size Size) (*MainWindow, error) {
+	return NewMainWindowWithName("", size)
 }
 
-func NewMainWindowWithName(name string) (*MainWindow, error) {
+func NewMainWindowWithName(name string, size Size) (*MainWindow, error) {
 	mw := new(MainWindow)
 	mw.SetName(name)
+	mw.InitSetSize(size)
 
 	if err := InitWindow(
 		mw,
