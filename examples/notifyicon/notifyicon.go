@@ -15,7 +15,7 @@ import (
 func main() {
 	// We need either a walk.MainWindow or a walk.Dialog for their message loop.
 	// We will not make it visible in this example, though.
-	mw, err := walk.NewMainWindow()
+	mw, err := walk.NewMainWindow(walk.Size{Width:0, Height:0})
 	if err != nil {
 		log.Fatal(err)
 	}
